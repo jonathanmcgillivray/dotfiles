@@ -1,9 +1,18 @@
+# Set Dotfiles directory (must be set before PATH)
+# Reads from install.sh marker, falls back to ~/.dotfiles
+if [[ -f ~/.config/dotfiles/location ]]; then
+    export DOTFILES_DIR="$(< ~/.config/dotfiles/location)"
+else
+    export DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
+fi
+
 # ============================================================================
 # 1. THE PATH (Fixes Neovim, Claude, and Opencode)
 # ============================================================================
 # We use 'typeset -U' to ensure PATH only contains unique entries
 typeset -U path
 path=(
+    $DOTFILES_DIR/bin
     $HOME/.local/bin
     $HOME/.local/share/bob/nvim-bin
     /home/aerometrix/.opencode/bin
@@ -12,9 +21,6 @@ path=(
     $path
 )
 export PATH
-
-# Set Dotfiles directory
-export DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
 
 # ============================================================================
 # 2. ZSH OPTIONS (The "Sane Defaults")

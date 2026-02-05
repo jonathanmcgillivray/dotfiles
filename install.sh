@@ -105,8 +105,9 @@ fi
 echo ""
 echo -e "${YELLOW}Step 5: Installing language environments${NC}"
 
-# Create marker file so shell sources know dotfiles is installed
+# Store dotfiles location so shell can find it
 mkdir -p ~/.config/dotfiles
+echo "$DOTFILES_DIR" > ~/.config/dotfiles/location
 touch ~/.config/dotfiles/.installed
 
 echo ""

@@ -1,0 +1,49 @@
+#!/bin/bash
+# dev - Start a development tmux session with neovim and claude code
+#
+# Usage: dev [project-dir]
+#   project-dir: Directory to open (defaults to current directory)
+#
+# Layout:
+#   ┌─────────────┬─────────────┐
+#   │             │             │
+#   │   neovim    │   claude    │
+#   │             │             │
+#   └─────────────┴─────────────┘
+
+set -e
+
+PROJECT_DIR="${1:-.}"
+PROJECT_DIR="$(cd "$PROJECT_DIR" && pwd)"
+SESSION_NAME="dev-$(basename "$PROJECT_DIR")"
+
+# Check if session already exists
+if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
+    echo "Session '$SESSION_NAME' already exists."
+    if [[ -n "$TMUX" ]]; then
+        tmux switch-client -t "$SESSION_NAME"
+    else
+        tmux attach -t "$SESSION_NAME"
+    fi
+    exit 0
+fi
+
+# Create new session with neovim in the first pane
+tmux new-session -d -s "$SESSION_NAME" -c "$PROJECT_DIR"
+
+# Split horizontally and open claude in the right pane
+tmux split-window -h -c "$PROJECT_DIR"
+tmux send-keys -t "$SESSION_NAME:1.2" 'claude' Enter
+
+# Start neovim in the left pane
+tmux send-keys -t "$SESSION_NAME:1.1" 'nvim' Enter
+
+# Focus on neovim pane
+tmux select-pane -t "$SESSION_NAME:1.1"
+
+# Attach or switch to the session
+if [[ -n "$TMUX" ]]; then
+    tmux switch-client -t "$SESSION_NAME"
+else
+    tmux attach -t "$SESSION_NAME"
+fi
