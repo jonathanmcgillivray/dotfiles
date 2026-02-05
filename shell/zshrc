@@ -1,0 +1,108 @@
+# Zsh Configuration
+
+# Source environment variables
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
+[ -f "$DOTFILES_DIR/shell/exports.sh" ] && source "$DOTFILES_DIR/shell/exports.sh"
+
+# Source aliases
+[ -f "$DOTFILES_DIR/shell/aliases.sh" ] && source "$DOTFILES_DIR/shell/aliases.sh"
+
+# Source functions
+[ -f "$DOTFILES_DIR/shell/functions.sh" ] && source "$DOTFILES_DIR/shell/functions.sh"
+
+# ============================================================================
+# ZSH Options
+# ============================================================================
+
+# History
+HISTFILE=~/.zsh_history
+HISTSIZE=50000
+SAVEHIST=50000
+setopt APPEND_HISTORY           # Append to history, don't overwrite
+setopt EXTENDED_HISTORY         # Save timestamps
+setopt HIST_FIND_NO_DUPS        # Don't show duplicates when searching
+setopt HIST_IGNORE_ALL_DUPS     # Remove older duplicate entries
+setopt HIST_IGNORE_DUPS         # Ignore consecutive duplicates
+setopt HIST_SAVE_NO_DUPS        # Don't save duplicates
+setopt INC_APPEND_HISTORY       # Add to history immediately
+setopt SHARE_HISTORY            # Share history across sessions
+
+# Completion
+autoload -Uz compinit
+compinit -d ~/.zsh/.compdump
+setopt MENU_COMPLETE            # Autoselect first completion entry
+setopt AUTO_MENU                # Tab completion menu
+setopt COMPLETE_IN_WORD         # Complete from both ends
+setopt AUTO_PARAM_SLASH         # Add trailing slash to directories
+
+# General
+setopt NO_BEEP                  # No beep on errors
+setopt CORRECT_ALL              # Correct spelling (off if annoying)
+setopt PROMPT_SUBST             # Enable prompt substitution
+setopt NO_NOMATCH               # Don't error on no matches
+
+# ============================================================================
+# Keybindings (Emacs-style)
+# ============================================================================
+
+bindkey -e                      # Emacs keybindings
+bindkey "^[[A" history-search-backward   # Up arrow
+bindkey "^[[B" history-search-forward    # Down arrow
+bindkey "^[[3;5~" kill-word             # Ctrl+Delete
+bindkey "^[^?" backward-kill-word       # Ctrl+Backspace
+
+# ============================================================================
+# Prompt
+# ============================================================================
+
+# Simple prompt with git status
+autoload -Uz vcs_info
+precmd_vcs_info() {
+    vcs_info
+}
+precmd_functions+=( precmd_vcs_info )
+zstyle ':vcs_info:git:*' formats ' (%b)'
+
+PROMPT='%F{blue}%n%f@%F{blue}%m%f:%F{cyan}%~%f%F{green}${vcs_info_msg_0_}%f %F{yellow}❯%f '
+
+# ============================================================================
+# Completions
+# ============================================================================
+
+# Python
+[ -f "$DOTFILES_DIR/shell/completions/_python-venvs" ] && source "$DOTFILES_DIR/shell/completions/_python-venvs"
+
+# ============================================================================
+# Language Paths (if installed)
+# ============================================================================
+
+# Rust
+[ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
+
+# Go
+export GOPATH="$HOME/go"
+[ -d "$GOPATH/bin" ] && export PATH="$GOPATH/bin:$PATH"
+
+# Node
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"
+
+# ============================================================================
+# Neovim as default editor
+# ============================================================================
+
+export EDITOR=nvim
+export VISUAL=nvim
+
+# ============================================================================
+# FZF (if installed)
+# ============================================================================
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# ============================================================================
+# Local zsh configuration (machine-specific)
+# ============================================================================
+
+[ -f ~/.zshrc.local ] && source ~/.zshrc.local

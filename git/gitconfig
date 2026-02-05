@@ -1,0 +1,80 @@
+[user]
+	name = Jonathan
+	email = jonathan@example.com
+
+[core]
+	editor = nvim
+	pager = less
+	excludesfile = ~/.gitignore_global
+	whitespace = space-before-tab,-indent-with-non-tab,trailing-space
+	autocrlf = input
+
+[init]
+	defaultBranch = main
+
+[diff]
+	tool = vimdiff
+	colorMoved = zebra
+
+[difftool "vimdiff"]
+	cmd = nvim -d \"$LOCAL\" \"$REMOTE\"
+
+[merge]
+	tool = vimdiff
+	conflictstyle = diff3
+
+[mergetool "vimdiff"]
+	cmd = nvim -d \"$LOCAL\" \"$MERGED\" \"$REMOTE\"
+
+[status]
+	showUntrackedFiles = all
+
+[alias]
+	# Simplified commands
+	st = status
+	co = checkout
+	br = branch
+	ci = commit
+	unstage = reset HEAD --
+	last = log -1 HEAD
+	visual = log --graph --oneline --all
+
+	# Common workflows
+	amend = commit --amend --no-edit
+	reset-hard = reset --hard
+	sync = pull --rebase
+
+	# Workflow
+	wip = commit -am "WIP: work in progress"
+	unwip = reset HEAD~1
+
+[color]
+	ui = auto
+	branch = auto
+	diff = auto
+	interactive = auto
+	status = auto
+
+[push]
+	default = current
+	followTags = true
+
+[pull]
+	rebase = true
+
+[rebase]
+	autostash = true
+
+[fetch]
+	prune = true
+
+[log]
+	decorate = short
+	abbrevCommit = true
+
+[advice]
+	pushUpdateRejected = false
+	statusHints = false
+
+[include]
+	path = ~/.gitconfig.local
