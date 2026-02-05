@@ -1,108 +1,105 @@
-# Zsh Configuration
+# ============================================================================
+# 1. THE PATH (Fixes Neovim, Claude, and Opencode)
+# ============================================================================
+# We use 'typeset -U' to ensure PATH only contains unique entries
+typeset -U path
+path=(
+    $HOME/.local/bin
+    $HOME/.local/share/bob/nvim-bin
+    /home/aerometrix/.opencode/bin
+    $HOME/.cargo/bin
+    $GOPATH/bin
+    $path
+)
+export PATH
 
-# Source environment variables
-DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
-[ -f "$DOTFILES_DIR/shell/exports.sh" ] && source "$DOTFILES_DIR/shell/exports.sh"
-
-# Source aliases
-[ -f "$DOTFILES_DIR/shell/aliases.sh" ] && source "$DOTFILES_DIR/shell/aliases.sh"
-
-# Source functions
-[ -f "$DOTFILES_DIR/shell/functions.sh" ] && source "$DOTFILES_DIR/shell/functions.sh"
+# Set Dotfiles directory
+export DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
 
 # ============================================================================
-# ZSH Options
+# 2. ZSH OPTIONS (The "Sane Defaults")
 # ============================================================================
-
 # History
 HISTFILE=~/.zsh_history
 HISTSIZE=50000
 SAVEHIST=50000
-setopt APPEND_HISTORY           # Append to history, don't overwrite
-setopt EXTENDED_HISTORY         # Save timestamps
-setopt HIST_FIND_NO_DUPS        # Don't show duplicates when searching
-setopt HIST_IGNORE_ALL_DUPS     # Remove older duplicate entries
-setopt HIST_IGNORE_DUPS         # Ignore consecutive duplicates
-setopt HIST_SAVE_NO_DUPS        # Don't save duplicates
-setopt INC_APPEND_HISTORY       # Add to history immediately
-setopt SHARE_HISTORY            # Share history across sessions
 
-# Completion
-autoload -Uz compinit
-compinit -d ~/.zsh/.compdump
-setopt MENU_COMPLETE            # Autoselect first completion entry
-setopt AUTO_MENU                # Tab completion menu
-setopt COMPLETE_IN_WORD         # Complete from both ends
-setopt AUTO_PARAM_SLASH         # Add trailing slash to directories
+setopt AUTO_CD              # Just type a directory name to cd into it
+setopt EXTENDED_HISTORY     # Write the history file in the ":start:elapsed;command" format.
+setopt SHARE_HISTORY        # Share history between all sessions.
+setopt HIST_EXPIRE_DUPS_FIRST # Expire duplicate entries first when trimming history.
+setopt HIST_IGNORE_DUPS     # Don't record an entry that was just recorded.
+setopt HIST_IGNORE_ALL_DUPS # Delete old recorded entry if new entry is a duplicate.
+setopt HIST_REDUCE_BLANKS   # Remove superfluous blanks before recording entry.
 
-# General
-setopt NO_BEEP                  # No beep on errors
-setopt CORRECT_ALL              # Correct spelling (off if annoying)
-setopt PROMPT_SUBST             # Enable prompt substitution
-setopt NO_NOMATCH               # Don't error on no matches
+# General UI/UX
+setopt NO_BEEP
+setopt INTERACTIVE_COMMENTS # Allow comments in interactive shells
+setopt CORRECT              # Spelling correction for commands
 
 # ============================================================================
-# Keybindings (Emacs-style)
+# 3. COMPLETION ENGINE (The "Modern" Way)
 # ============================================================================
+autoload -Uz compinit && compinit -d ~/.zsh/.compdump
 
-bindkey -e                      # Emacs keybindings
-bindkey "^[[A" history-search-backward   # Up arrow
-bindkey "^[[B" history-search-forward    # Down arrow
-bindkey "^[[3;5~" kill-word             # Ctrl+Delete
-bindkey "^[^?" backward-kill-word       # Ctrl+Backspace
+# Zstyle completions (Case-insensitive, colorful, and smart)
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' # Case-insensitive
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}" # Match LS_COLORS
+zstyle ':completion:*' menu select # Visual menu for completion
+zstyle ':completion:*:descriptions' format '[%d]'
+zstyle ':completion:*:make:*:*' tag-order 'targets'
 
 # ============================================================================
-# Prompt
+# 4. PROMPT & VIRTUAL ENVS
 # ============================================================================
+# Detect Debian Chroot (from your old bashrc)
+if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
+    debian_chroot=$(cat /etc/debian_chroot)
+fi
 
-# Simple prompt with git status
 autoload -Uz vcs_info
-precmd_vcs_info() {
-    vcs_info
-}
-precmd_functions+=( precmd_vcs_info )
-zstyle ':vcs_info:git:*' formats ' (%b)'
+precmd() { vcs_info }
+zstyle ':vcs_info:git:*' formats '%F{242}(%b)%f' # Subtle grey git branch
 
-PROMPT='%F{blue}%n%f@%F{blue}%m%f:%F{cyan}%~%f%F{green}${vcs_info_msg_0_}%f %F{yellow}❯%f '
-
-# ============================================================================
-# Completions
-# ============================================================================
-
-# Python
-[ -f "$DOTFILES_DIR/shell/completions/_python-venvs" ] && source "$DOTFILES_DIR/shell/completions/_python-venvs"
+# Clean, modern prompt: [chroot] user@host path (branch) ❯
+PROMPT='%F{yellow}${debian_chroot:+($debian_chroot)}%f%F{blue}%n%f@%F{blue}%m%f %F{cyan}%~%f ${vcs_info_msg_0_}
+%F{yellow}❯%f '
 
 # ============================================================================
-# Language Paths (if installed)
+# 5. MIGRATED ALIASES (From your Bashrc)
+# ============================================================================
+alias ls='ls --color=auto'
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+alias grep='grep --color=auto'
+alias ..='cd ..'
+alias ...='cd ../..'
+
+# The "Alert" alias you liked from Bash
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+
+# ============================================================================
+# 6. EXTERNAL TOOLS & MODULAR FILES
 # ============================================================================
 
-# Rust
-[ -f "$HOME/.cargo/env" ] && source "$HOME/.cargo/env"
+# Source modular files if they exist
+[ -f "$DOTFILES_DIR/shell/exports.sh" ] && source "$DOTFILES_DIR/shell/exports.sh"
+[ -f "$DOTFILES_DIR/shell/aliases.sh" ] && source "$DOTFILES_DIR/shell/aliases.sh"
+[ -f "$DOTFILES_DIR/shell/functions.sh" ] && source "$DOTFILES_DIR/shell/functions.sh"
 
-# Go
-export GOPATH="$HOME/go"
-[ -d "$GOPATH/bin" ] && export PATH="$GOPATH/bin:$PATH"
-
-# Node
+# NVM (Lazy load for faster shell startup)
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"
 
-# ============================================================================
-# Neovim as default editor
-# ============================================================================
+# FZF
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
+# Editor
 export EDITOR=nvim
 export VISUAL=nvim
 
 # ============================================================================
-# FZF (if installed)
+# 7. LOCAL OVERRIDES (Machine specific)
 # ============================================================================
-
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-# ============================================================================
-# Local zsh configuration (machine-specific)
-# ============================================================================
-
 [ -f ~/.zshrc.local ] && source ~/.zshrc.local
