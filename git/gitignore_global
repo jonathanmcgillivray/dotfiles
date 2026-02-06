@@ -20,8 +20,8 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+/lib/
+/lib64/
 parts/
 sdist/
 var/
@@ -46,24 +46,15 @@ htmlcov/
 node_modules/
 npm-debug.log
 yarn-error.log
-*.lock
-package-lock.json
-yarn.lock
 .npm
-dist/
-build/
 .next/
 out/
 
 # Rust
 target/
-Cargo.lock
-.rustfmt.toml
-.clippy.toml
 
 # Go
 vendor/
-go.sum
 
 # System
 .DS_Store
