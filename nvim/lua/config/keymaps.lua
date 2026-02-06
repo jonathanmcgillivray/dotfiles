@@ -7,7 +7,7 @@
 
 -- Colemak Mod-DH window navigation (NEIU = left/down/up/right on nav layer)
 -- Maps Alt+NEIU to window navigation (avoids Ctrl+I/E/U conflicts)
-vim.keymap.set("n", "<M-n>", "<C-h>", { desc = "Go to left window" })
-vim.keymap.set("n", "<M-e>", "<C-j>", { desc = "Go to lower window" })
-vim.keymap.set("n", "<M-i>", "<C-k>", { desc = "Go to upper window" })
-vim.keymap.set("n", "<M-u>", "<C-l>", { desc = "Go to right window" })
+vim.keymap.set("n", "<M-n>", "<cmd>TmuxNavigateLeft<cr>", { desc = "Go to left window" })
+vim.keymap.set("n", "<M-e>", "<cmd>TmuxNavigateDown<cr>", { desc = "Go to lower window" })
+vim.keymap.set("n", "<M-i>", "<cmd>TmuxNavigateUp<cr>", { desc = "Go to upper window" })
+vim.keymap.set("n", "<M-u>", "<cmd>TmuxNavigateRight<cr>", { desc = "Go to right window" })
